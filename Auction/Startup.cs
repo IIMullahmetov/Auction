@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin;
+﻿using Microsoft.AspNet.SignalR;
+using Microsoft.Owin;
 using Owin;
 
 [assembly: OwinStartupAttribute(typeof(Auction.Startup))]
@@ -8,7 +9,9 @@ namespace Auction
     {
         public void Configuration(IAppBuilder app)
         {
-            ConfigureAuth(app);
+			app.MapSignalR();
+			//GlobalHost.HubPipeline.RequireAuthentication();
+			ConfigureAuth(app);
         }
     }
 }

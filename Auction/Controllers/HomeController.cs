@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Auction.Models;
 using System.Web.Mvc;
 
 namespace Auction.Controllers
@@ -26,5 +23,13 @@ namespace Auction.Controllers
 
 			return View();
 		}
+
+		[Authorize(Roles = "USER")]
+		public ActionResult Auction()
+		{
+			ViewBag.Message = "Auction";
+			return View();
+		}
+
 	}
 }
