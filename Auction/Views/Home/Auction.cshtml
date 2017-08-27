@@ -5,20 +5,25 @@
 
 <h2>Аукцион</h2>
 <div id="auction">	
-	<input id="time" type="text" disabled/>
-	<input id="product" type="text" disabled/>
-	<input id="price" type="number" disabled />
-	<input id="user" type="text" disabled />
+	<h2 id="time"></h2>
+	@*<input id="time" type="text" disabled/>*@
+	<h2 id="product"></h2>
+	@*<input id="product" type="text" disabled/>*@
+	@*<input id="price" type="number" disabled />*@
+	<h2 id="price"></h2>
+	@*<input id="user" type="text" disabled />*@
+	<h2 id="user"></h2>
 	@if (Request.IsAuthenticated && !User.IsInRole("ADMIN"))
 	{
-		<input id="offer" type="number" min="100" />
-		<input id="to_offer" type="button" value="Предложить" />
-		<input id="to_double" type="button" value="Удвоить" />
+		<div class="form-group">
+			<input id="offer" type="number" min="100" class="form-control" /><br>
+			<input id="to_offer" type="button" value="Предложить" class="btn btn-default" />
+		</div>		
 	}
 	@if (Request.IsAuthenticated && User.IsInRole("ADMIN"))
 	{
-		<input type="button" id="start_a" value="Начать аукцион" />
-		<input type="button" id="start_b" value="Начать аукцион" />
+		<input type="button" id="start_a" value="Начать аукцион A" class="btn btn-default" />
+		<input type="button" id="start_b" value="Начать аукцион B	" class="btn btn-default"/>
 	}
 </div>
 

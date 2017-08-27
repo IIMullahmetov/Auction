@@ -206,6 +206,7 @@
     </Compile>
     <Compile Include="Hubs\AuctionHub.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\AuctionManager.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Participant.cs" />
@@ -274,6 +275,7 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Home\Auction.cshtml" />
+    <Content Include="Views\Home\Auctions.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "Auctions";
+}
+<h2>Прошедшие аукционы</h2>
+	
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Начало</th>
+										<th>Конец</th>
+										<th>Цена</th>
+										<th>Ценовые предложения</th>
+										<th>Email</th>
+									</tr>
+								</thead>
+								@foreach (Tuple<DateTime, DateTime, int, int, string> tuple in Model)
+								{
+									<tr>
+										<td>@tuple.Item1</td>
+										<td>@tuple.Item2</td>
+										<td>@tuple.Item3</td>
+										<td>@tuple.Item4</td>
+										<td>@tuple.Item5</td>
+									</tr>
+								}
+							</table>

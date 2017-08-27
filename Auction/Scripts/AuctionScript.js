@@ -4,18 +4,14 @@
 	$.connection.AuctionHub.server.Connect(email);
 });
 $.connection.AuctionHub.client.TimeReceiver = function (time) {
-	$("#time").val(time);
+	$("#time").text("Оставшееся время: " + time);
 }	
 
 $.connection.AuctionHub.client.ReceiveInfo = function (price, email, product) {
-	$("#price").val(price);
-	$("#user").val(email);
-	$("#product").val(product);
+	$("#price").text("Текущая  цена: " + price);
+	$("#user").text("Покупатель: " + email);
+	$("#product").text("Название товара: " + product);
 }
-
-$("#to_double").click(function () {
-	$.connection.AuctionHub.server.ToDouble();
-});
 
 $("#to_offer").click(function () {
 	var price = $("#price").val();
@@ -28,15 +24,11 @@ $("#to_offer").click(function () {
 	}
 });
 
-
-
 $("#start_a").click(function () {
 	$.connection.AuctionHub.server.AuctionStart("ProductA").done(function (info) {
 		alert(info);
 	});
 });
-
-
 
 $("#start_b").click(function () {
 	$.connection.AuctionHub.server.AuctionStart("ProductB").done(function (info) {

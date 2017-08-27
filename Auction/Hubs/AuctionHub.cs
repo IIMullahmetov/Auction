@@ -118,27 +118,6 @@ namespace Auction.Hubs
 			context.SaveChanges();
 		}
 
-		[HubMethodName("ToDouble")]
-		public void ToDouble()
-		{
-			try
-			{
-				if (IsRunning && Participants.Contains(Participants.Where(p => p.Id == Context.ConnectionId).First()))
-				{
-					string id = Context.ConnectionId;
-					participant = Participants.Where(p => p.Id == id).First();
-					CurrentAuction.Price *= 2;
-					CurrentAuction.OfferCount++;
-					Models.Timer.UpdateTimer();
-					Clients.All.ReceiveInfo(CurrentAuction.Price, participant.Email, auctionInfo.Product);
-				}
-			}
-			catch
-			{
-
-			}
-		}
-
 		[HubMethodName("ToOffer")]
 		public void ToOffer(int price)
 		{
@@ -151,7 +130,7 @@ namespace Auction.Hubs
 						return;
 					}
 					participant = Participants.Where(p => p.Id == Context.ConnectionId).First();
-					if (price / CurrentAuction.Price >= 2)
+					if (TimeLeft.Seconds < 60)
 					{
 						Models.Timer.UpdateTimer();
 					}

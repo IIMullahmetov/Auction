@@ -16,7 +16,7 @@ namespace Auction.Models
 			return end.Value;
 		}
 
-		public static void UpdateTimer() => end = end.Value.Add(new TimeSpan(0, 1, 0));
+		public static void UpdateTimer() => end = DateTime.Now.Add(new TimeSpan(0, 1, 0));
 
 		public static void ResetTimer() => end = null;
 	}

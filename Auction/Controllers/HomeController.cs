@@ -32,5 +32,12 @@ namespace Auction.Controllers
 			ViewBag.Message = "Auction";
 			return View();
 		}
+
+		[Authorize(Roles = "ADMIN")]
+		public ActionResult Auctions()
+		{
+			AuctionManager manager = new AuctionManager();
+			return View(manager.GetAuctions());
+		}
 	}
 }
