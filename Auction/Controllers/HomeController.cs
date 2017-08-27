@@ -1,4 +1,5 @@
 ﻿using Auction.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System.Web.Mvc;
 
 namespace Auction.Controllers
@@ -7,6 +8,7 @@ namespace Auction.Controllers
 	{
 		public ActionResult Index()
 		{
+			
 			return View();
 		}
 
@@ -30,6 +32,5 @@ namespace Auction.Controllers
 			ViewBag.Message = "Auction";
 			return View();
 		}
-
 	}
 }

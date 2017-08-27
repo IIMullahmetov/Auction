@@ -4,12 +4,17 @@
 	$.connection.AuctionHub.server.Connect(email);
 });
 $.connection.AuctionHub.client.TimeReceiver = function (time) {
-		$("#time").val(time);
+	$("#time").val(time);
 }	
 
-$.connection.AuctionHub.client.ReceiveInfo = function (price, email) {
+$.connection.AuctionHub.client.ReceiveProductInfo = function (info) {
+	$("#product").val(info);
+}
+
+$.connection.AuctionHub.client.ReceiveInfo = function (price, email, product) {
 	$("#price").val(price);
 	$("#user").val(email);
+	$("#product").val(product);
 }
 
 $("#to_double").click(function () {
@@ -19,15 +24,32 @@ $("#to_double").click(function () {
 $("#to_offer").click(function () {
 	var price = $("#price").val();
 	var offer = $("#offer").val();
-	if (offer - price >= 5) {
+	$("#offer").val("");
+	if (offer - price > 4) {
 		$.connection.AuctionHub.server.ToOffer(offer);
+	} else {
+		alert("Предложение должно быть больше стоимости на 5")
 	}
 });
 
-$("#to_connect").click(function () {
-	$.connection.AuctionHub.server.AuctionStart();
+
+
+$("#start_a").click(function () {
+	$.connection.AuctionHub.server.AuctionStart("ProductA").done(function (info) {
+		alert(info);
+	});
 });
 
-$.connection.AuctionHub.client.AuctionEnd = function (price, email, time) {
+$("#start_b").click(function () {
+	$.connection.AuctionHub.server.AuctionStart("ProductB").done(function (info) {
+		alert(info);
+	});
+});
 
+$.connection.AuctionHub.client.AuctionEnd = function (info) {
+	alert(info);
+	$("#price").val(100);
+	$("#user").val("");
+	$("#product").val("");
 }
+
