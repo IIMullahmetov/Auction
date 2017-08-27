@@ -140,7 +140,7 @@ namespace Auction.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            return View();
+			return View();
         }
 
         //
@@ -150,7 +150,8 @@ namespace Auction.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+			
+			if (ModelState.IsValid)
             {
 				ApplicationUser user = new ApplicationUser { UserName = model.Email, Email = model.Email };
 				IdentityResult result = await UserManager.CreateAsync(user, model.Password);

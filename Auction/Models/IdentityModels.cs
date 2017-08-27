@@ -42,6 +42,8 @@ namespace Auction.Models
 
 		public DateTime AuctionEnd { get; set; }
 
+		public int OfferCount { get; set; }
+
 		public int Price { get; set; }
 
 		[StringLength(128)]

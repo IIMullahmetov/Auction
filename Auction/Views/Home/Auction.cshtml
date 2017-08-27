@@ -4,15 +4,14 @@
 }
 
 <h2>Аукцион</h2>
-<div id="auction">
-	<h2 id="product"></h2>
+<div id="auction">	
 	<input id="time" type="text" disabled/>
 	<input id="product" type="text" disabled/>
 	<input id="price" type="number" disabled />
 	<input id="user" type="text" disabled />
-	<input id="offer" type="number" min="100" />
 	@if (Request.IsAuthenticated && !User.IsInRole("ADMIN"))
 	{
+		<input id="offer" type="number" min="100" />
 		<input id="to_offer" type="button" value="Предложить" />
 		<input id="to_double" type="button" value="Удвоить" />
 	}

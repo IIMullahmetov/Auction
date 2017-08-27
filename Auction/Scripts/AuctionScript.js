@@ -7,10 +7,6 @@ $.connection.AuctionHub.client.TimeReceiver = function (time) {
 	$("#time").val(time);
 }	
 
-$.connection.AuctionHub.client.ReceiveProductInfo = function (info) {
-	$("#product").val(info);
-}
-
 $.connection.AuctionHub.client.ReceiveInfo = function (price, email, product) {
 	$("#price").val(price);
 	$("#user").val(email);
@@ -40,6 +36,8 @@ $("#start_a").click(function () {
 	});
 });
 
+
+
 $("#start_b").click(function () {
 	$.connection.AuctionHub.server.AuctionStart("ProductB").done(function (info) {
 		alert(info);
@@ -53,3 +51,12 @@ $.connection.AuctionHub.client.AuctionEnd = function (info) {
 	$("#product").val("");
 }
 
+$.connection.AuctionHub.client.DisableButtons = function () {
+	$("#start_a").prop("disabled", true);
+	$("#start_b").prop("disabled", true);
+}
+
+$.connection.AuctionHub.client.EnableButtons = function () {
+	$("#start_a").prop("disabled", false);
+	$("#start_b").prop("disabled", false);
+}

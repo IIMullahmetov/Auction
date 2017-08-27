@@ -17,70 +17,61 @@ namespace Auction.Hubs
 		private static bool IsRunning = false;
 		private static List<Participant> Participants = new List<Participant>();
 		private static DateTime end;
-		private static Participant participant = null;
-		private static int price = 100;
+		private static Participant participant = new Participant() { Id = "", Email = "" };
 		private ApplicationDbContext context = new ApplicationDbContext();
-		private static AuctionInfo auctionInfo;
-		private static Models.Auction CurrentAuction;
+		private static AuctionInfo auctionInfo = new AuctionInfo() { Product = "" };
+		private static Models.Auction CurrentAuction = new Models.Auction() { Price = 100 };
 
 		[HubMethodName("Connect")]
 		public void Connect(string email)
-		{
+		{			
 			string id = Context.ConnectionId;
 			if (!Participants.Any(u => u.Email == email))
 			{
 				Participants.Add(new Participant() { Id = id, Email = email });
-				Clients.Caller.TimeReceiver("00.00.00");
-				if (participant != null)
-				{
-					Clients.All.ReceiveInfo(price, participant.Email);
-				}
-				else
-				{
-					Clients.All.ReceiveInfo("", "");
-				}
 			}
 			else
 			{
 				Participants.Where(p => p.Email == email).First().Id = Context.ConnectionId;
 			}
+			Clients.Caller.TimeReceiver("00.00.00");
+			Clients.All.ReceiveInfo(CurrentAuction.Price, participant.Email, auctionInfo.Product);
 		}
 
 		[HubMethodName("AuctionStart")]
 		public async Task<string> AuctionStart(string product_name)
 		{
-			if (!IsRunning)
+			IsRunning = true;
+			Clients.Caller.DisableButtons();
+			end = Models.Timer.GetTimer();
+			auctionInfo = context.AuctionInfos.Where(a => a.Product == product_name).First();
+			CurrentAuction = new Models.Auction() { AuctionStart = DateTime.Now, Price = 100, AuctionInfo = auctionInfo };
+			Clients.All.ReceiveInfo(CurrentAuction.Price, "", auctionInfo.Product);
+			while (TimeLeft > TimeSpan.Zero)
 			{
-				IsRunning = true;
-				end = Models.Timer.GetTimer();
-				CurrentAuction = new Models.Auction() { AuctionStart = DateTime.Now };
-				auctionInfo = context.AuctionInfos.Where(a => a.Product == product_name).First();
-				Clients.All.ReceiveProductInfo(auctionInfo.Product);
-				Clients.All.ReceiveInfo(price, "", auctionInfo.Product);
-				while (TimeLeft > TimeSpan.Zero)
-				{
-					Clients.All.TimeReceiver(TimeLeft.ToString().Substring(0, 8));
-					Thread.Sleep(1000);
-				}
-				string info;
-				if (participant == null)
-				{
-					info = "Никто не приобрел продукт " + CurrentAuction.AuctionInfo.Product;
-					Clients.AllExcept(Context.ConnectionId).AuctionEnd(info);
-					return info;
-				}
-				await End();
-				info = new StringBuilder().Append("Пользователь ")
-					.Append(CurrentAuction.User.Email)
-					.Append(" приобрел ")
-					.Append(CurrentAuction.AuctionInfo.Product)
-					.Append(" за ")
-					.Append(CurrentAuction.Price)
-					.ToString();
+				Clients.All.TimeReceiver(TimeLeft.ToString().Substring(0, 8));
+				Thread.Sleep(1000);
+			}
+			string info;
+			if (participant.Email == "")
+			{
+				info = "Никто не приобрел продукт " + CurrentAuction.AuctionInfo.Product;
+				Models.Timer.ResetTimer();
 				Clients.AllExcept(Context.ConnectionId).AuctionEnd(info);
+				Clients.Caller.EnableButtons();
 				return info;
 			}
-			return "Аукцион еще идет";
+			await End();
+			info = new StringBuilder().Append("Пользователь ")
+				.Append(CurrentAuction.User.Email)
+				.Append(" приобрел ")
+				.Append(CurrentAuction.AuctionInfo.Product)
+				.Append(" за ")
+				.Append(CurrentAuction.Price)
+				.ToString();
+			Clients.AllExcept(Context.ConnectionId).AuctionEnd(info);
+			Clients.Caller.EnableButtons();
+			return info;
 		}
 
 		//[HubMethodName("AuctionStart")]
@@ -106,13 +97,14 @@ namespace Auction.Hubs
 		//}
 
 		private async Task End()
-		{
-			IsRunning = false;
+		{				
+			Models.Timer.ResetTimer();
 			CurrentAuction.AuctionEnd = DateTime.Now;
+			CurrentAuction.AuctionInfo = auctionInfo;
+			context.Auctions.Add(CurrentAuction);
 			ApplicationUserManager manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context));
 			ApplicationUser user = await manager.FindByNameAsync(participant.Email);
 			CurrentAuction.User = user;
-			CurrentAuction.Price = price;
 			CurrentAuction.AuctionInfo = auctionInfo;
 			context.Auctions.Add(CurrentAuction);
 			context.SaveChanges();
@@ -121,38 +113,58 @@ namespace Auction.Hubs
 				ApplicationUser applicationUser = await manager.FindByNameAsync(p.Email);
 				context.AuctionUsers.Add(new AuctionUser() { User = applicationUser, Auction = CurrentAuction });
 			}
+			IsRunning = false;
+			participant = new Participant() { Id = "", Email = "" };
 			context.SaveChanges();
 		}
 
 		[HubMethodName("ToDouble")]
 		public void ToDouble()
 		{
-			if (IsRunning && Participants.Contains(Participants.Where(p => p.Id == Context.ConnectionId).First()))
+			try
 			{
-				string id = Context.ConnectionId;
-				participant = Participants.Where(p => p.Id == id).First();
-				price *= 2;
-				Models.Timer.UpdateTimer();
-				Clients.All.ReceiveInfo(price, participant.Email);
+				if (IsRunning && Participants.Contains(Participants.Where(p => p.Id == Context.ConnectionId).First()))
+				{
+					string id = Context.ConnectionId;
+					participant = Participants.Where(p => p.Id == id).First();
+					CurrentAuction.Price *= 2;
+					CurrentAuction.OfferCount++;
+					Models.Timer.UpdateTimer();
+					Clients.All.ReceiveInfo(CurrentAuction.Price, participant.Email, auctionInfo.Product);
+				}
+			}
+			catch
+			{
+
 			}
 		}
 
 		[HubMethodName("ToOffer")]
 		public void ToOffer(int price)
 		{
-			if (IsRunning && Participants.Contains(Participants.Where(p => p.Id == Context.ConnectionId).First()))
+			try
 			{
-				string id = Context.ConnectionId;
-				participant = Participants.Where(p => p.Id == id).First();
-				if (price / AuctionHub.price >= 2)
+				if (IsRunning && Participants.Contains(Participants.Where(p => p.Id == Context.ConnectionId).First()))
 				{
-					Models.Timer.UpdateTimer();
+					if (price - CurrentAuction.Price < 5)
+					{
+						return;
+					}
+					participant = Participants.Where(p => p.Id == Context.ConnectionId).First();
+					if (price / CurrentAuction.Price >= 2)
+					{
+						Models.Timer.UpdateTimer();
+					}
+					CurrentAuction.Price = price;
+					CurrentAuction.OfferCount++;
+					Clients.All.ReceiveInfo(CurrentAuction.Price, participant.Email, auctionInfo.Product);
 				}
-				AuctionHub.price = price;
-				Clients.All.ReceiveInfo(AuctionHub.price, participant.Email);
+			}
+			catch
+			{
+
 			}
 		}
-
 		private TimeSpan TimeLeft => Models.Timer.GetTimer() - DateTime.Now;
 	}
 }

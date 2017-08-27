@@ -10,12 +10,14 @@ namespace Auction.Models
 		{
 			if(end == null)
 			{
-				end = DateTime.Now.Add(new TimeSpan(0, 1, 0));
+				end = DateTime.Now.Add(new TimeSpan(0, 0, 10));
 				return end.Value;
 			}
 			return end.Value;
 		}
 
 		public static void UpdateTimer() => end = end.Value.Add(new TimeSpan(0, 1, 0));
+
+		public static void ResetTimer() => end = null;
 	}
 }
